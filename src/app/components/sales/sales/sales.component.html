@@ -1,0 +1,43 @@
+<section>
+  <div class="container">
+    <div class="half left">
+      <form [formGroup]="salesForm" (ngSubmit)="onSubmit()">
+        <input type="number" placeholder="Ingrese monto..." formControlName="amount" min="0" step="0.01" (keydown)="onKeyDown($event)">
+
+        <select formControlName="country" id="country">
+          <option value="" disabled selected>Seleccione un país</option>
+          @for (country of countries; track country.value) {
+            <option [value]="country.value">{{ country.label }}</option>
+          }
+        </select>
+
+        <button type="submit" [disabled]="salesForm.invalid">Calcular</button>
+      </form>
+    </div>
+
+    <div class="half right">
+      @if (isLoading) {
+        <div class="loading-container">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Calculando...</p>
+        </div>
+      }
+
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
+
+      @if (resultado && !isLoading) {
+        <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+          <h2>Resultado</h2>
+          <p><b>Monto Base:</b> {{ resultado.amount }}</p>
+          <p><b>País:</b> {{ resultado.country }}</p>
+          <p><b>Tasa de impuesto:</b> {{ resultado.vatRate }}%</p>
+          <p><b>Total:</b> {{ resultado.finalAmount }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
