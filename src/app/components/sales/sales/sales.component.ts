@@ -26,7 +26,7 @@ export class SalesComponent {
   isLoading = false;
   errorMessage = '';
   private fb=inject(FormBuilder);
-  private salesService=inject(SalesService);
+  public salesService=inject(SalesService);
 
   countries: CountryOption[] = [
     { value: 'BR', label: 'Brasil' },
@@ -74,21 +74,21 @@ export class SalesComponent {
       this.resultado = undefined;
 
       const formValue = this.salesForm.value;
-      const request: SalesRequest = {
-        amount: formValue.amount,
-        country: formValue.country,
-      };
+      const amount = Number(formValue.amount);
+      const country = formValue.country;
 
-      this.salesService.calculatePrice(request).subscribe({
-        next: (res) => {
-          this.resultado = res;
-          this.showSpinner();
-        },
-        error: (err) => {
-          this.errorMessage = 'Un error ocurrió, intente nuevamente';
-          this.showSpinner();
-        },
-      });
+      try {
+        const request: SalesRequest = {
+          amount: amount,
+          country: country
+        };
+
+        this.resultado = this.salesService.calculatePriceWithVAT(request);
+        this.showSpinner();
+      } catch (error) {
+        this.errorMessage = 'País no soportado';
+        this.showSpinner();
+      }
     }
   }
 

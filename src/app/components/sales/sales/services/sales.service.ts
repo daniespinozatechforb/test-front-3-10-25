@@ -1,18 +1,32 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { SalesRequest, SalesResponse } from '../model/sales.model';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SalesService {
 
-  private apiUrl = 'http://localhost:8080/api/sales/price';
+  constructor() {}
 
-  constructor(private http: HttpClient) {}
+  calculatePriceWithVAT(request: SalesRequest): SalesResponse {
+    const vatRates: { [key: string]: number } = {
+      'BR': 0.12,
+      'CL': 0.19,
+      'MX': 0.16
+    };
 
-  calculatePrice(sale: SalesRequest): Observable<SalesResponse> {
-    return this.http.post<SalesResponse>(this.apiUrl, sale);
+    if (!(request.country in vatRates)) {
+      throw new Error('Country not supported');
+    }
+
+    const vatRate = vatRates[request.country];
+    const finalAmount = request.amount + (request.amount * vatRate);
+
+    return {
+      amount: request.amount,
+      country: request.country,
+      vatRate: vatRate * 100,
+      finalAmount: finalAmount
+    };
   }
 }
